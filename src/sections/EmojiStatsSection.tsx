@@ -7,12 +7,19 @@ type Props = {
   topByPerson: Map<ParticipantId, EmojiCount[]>
 }
 
-function playfulCaption(emoji: string) {
-  if (emoji.includes('😂') || emoji.includes('🤣')) return 'Proof you find me funny… or you’re just kind.'
+function playfulCaption(emoji: string, personId: ParticipantId) {
+  const isMe = personId === 'tadi'
+  if (emoji.includes('😂') || emoji.includes('🤣')) {
+    return isMe
+      ? 'If laughter is a love language… you’ve been fluent.'
+      : 'You laugh at me like you’re trying not to fall. It never works.'
+  }
   if (emoji.includes('😭')) return 'Our emotional support emoji. No shame.'
   if (emoji.includes('🥹')) return 'Soft tears. The best kind.'
   if (emoji.includes('🫶')) return 'Hands that say what words can’t.'
-  if (emoji.includes('❤️') || emoji.includes('💗') || emoji.includes('💕')) return 'No notes. Just yes.'
+  if (emoji.includes('❤️') || emoji.includes('💗') || emoji.includes('💕')) {
+    return isMe ? 'I left hearts like breadcrumbs back to you.' : 'You made “❤️” feel like a full sentence.'
+  }
   return 'A tiny signature you kept leaving everywhere.'
 }
 
@@ -45,7 +52,7 @@ export function EmojiStatsSection({ participants, topByPerson }: Props) {
                     </div>
                   ))}
                 </div>
-                {top ? <div className="emoji-caption">“{playfulCaption(top)}”</div> : null}
+                {top ? <div className="emoji-caption">“{playfulCaption(top, p.id)}”</div> : null}
               </ScrollReveal>
             )
           })}
@@ -54,4 +61,3 @@ export function EmojiStatsSection({ participants, topByPerson }: Props) {
     </section>
   )
 }
-
