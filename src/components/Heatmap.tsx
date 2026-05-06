@@ -3,7 +3,8 @@ import type { ISODate } from '../chat/analytics'
 
 type Props = {
   countsByDay: Map<ISODate, number>
-  days?: number
+  startISO: ISODate
+  endISO: ISODate
 }
 
 type Cell = {
@@ -30,19 +31,22 @@ function computeLevel(count: number, max: number): 0 | 1 | 2 | 3 | 4 {
   return 4
 }
 
-export function Heatmap({ countsByDay, days = 182 }: Props) {
+export function Heatmap({ countsByDay, startISO, endISO }: Props) {
   const { cells, weekCount, monthLabels } = useMemo(() => {
-    const today = new Date()
-    const end = new Date(today.getFullYear(), today.getMonth(), today.getDate())
-    const start = new Date(end)
-    start.setDate(end.getDate() - (days - 1))
+    const start = new Date(`${startISO}T00:00:00`)
+    const end = new Date(`${endISO}T00:00:00`)
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+      return { cells: [] as Cell[], weekCount: 0, monthLabels: [] as { weekIndex: number; label: string }[] }
+    }
+
+    const dayCount = Math.max(1, Math.round((end.getTime() - start.getTime()) / (24 * 60 * 60 * 1000)) + 1)
 
     let max = 0
     for (const v of countsByDay.values()) max = Math.max(max, v)
 
     const result: Cell[] = []
     const cursor = new Date(start)
-    for (let i = 0; i < days; i += 1) {
+    for (let i = 0; i < dayCount; i += 1) {
       const dateISO = `${cursor.getFullYear()}-${`${cursor.getMonth() + 1}`.padStart(2, '0')}-${`${cursor.getDate()}`.padStart(2, '0')}` as ISODate
       const count = countsByDay.get(dateISO) ?? 0
       const weekday = cursor.getDay()
@@ -82,7 +86,7 @@ export function Heatmap({ countsByDay, days = 182 }: Props) {
     }
 
     return { cells: all, weekCount, monthLabels }
-  }, [countsByDay, days])
+  }, [countsByDay, endISO, startISO])
 
   const width = weekCount
 

@@ -5,17 +5,13 @@ import { Heatmap } from '../components/Heatmap'
 
 type Props = {
   countsByDay: Map<ISODate, number>
-  days?: number
 }
 
-export function HeatmapSection({ countsByDay, days = 210 }: Props) {
-  const range = (() => {
-    const keys = [...countsByDay.keys()].sort()
-    const first = keys[0]
-    const last = keys[keys.length - 1]
-    if (!first || !last) return null
-    return `${formatMonthYear(first)} → ${formatMonthYear(last)}`
-  })()
+export function HeatmapSection({ countsByDay }: Props) {
+  const today = new Date()
+  const endISO = `${today.getFullYear()}-${`${today.getMonth() + 1}`.padStart(2, '0')}-${`${today.getDate()}`.padStart(2, '0')}` as ISODate
+  const startISO = '2026-02-01' as ISODate
+  const range = `${formatMonthYear(startISO)} → ${formatMonthYear(endISO)}`
 
   return (
     <section className="section heat" id="heatmap" aria-label="Chat heatmap">
@@ -27,7 +23,7 @@ export function HeatmapSection({ countsByDay, days = 210 }: Props) {
         </ScrollReveal>
 
         <ScrollReveal as="div" className="paper-card heat-card">
-          <Heatmap countsByDay={countsByDay} days={days} />
+          <Heatmap countsByDay={countsByDay} startISO={startISO} endISO={endISO} />
           <div className="heat-legend" aria-hidden="true">
             <span>less</span>
             <span className="dot lvl-1" />
