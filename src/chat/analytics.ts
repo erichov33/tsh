@@ -425,8 +425,15 @@ export function deriveTimelineEvents(data: ChatData, limit = 8): TimelineEvent[]
 }
 
 export function autoPickQuotes(data: ChatData, desired = 6): { id: string; text: string; by: ParticipantId; date: ISODate }[] {
+  const excludedQuoteNeedles = ['crave attention from the streets']
+  const shouldExclude = (text: string) => {
+    const t = normalizeWhitespace(text).toLowerCase()
+    return excludedQuoteNeedles.some((n) => t.includes(n))
+  }
+
   const explicit = (data.quotes ?? []).slice(0, desired).flatMap((q) => {
     if (!q.by || !q.date) return []
+    if (shouldExclude(q.text)) return []
     return [{ id: q.id, text: q.text, by: q.by, date: q.date as ISODate }]
   })
   if (explicit.length >= Math.min(desired, 4)) return explicit.slice(0, desired)
@@ -437,6 +444,7 @@ export function autoPickQuotes(data: ChatData, desired = 6): { id: string; text:
       return { m, day }
     })
     .filter(({ m, day }) => Boolean(day) && m.text && m.text.length >= 35 && m.text.length <= 220)
+    .filter(({ m }) => !shouldExclude(m.text))
     .filter(({ m }) => !/http:\/\/|https:\/\//i.test(m.text))
     .filter(({ m }) => splitEmojiClusters(m.text).length <= 4)
     .map(({ m, day }) => {
