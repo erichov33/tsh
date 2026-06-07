@@ -44,7 +44,7 @@ export default defineConfig({
     {
       name: 'relationship-wrapped-whatsapp-source',
       configureServer(server) {
-        const chatPath = '/Users/tadi/Downloads/WhatsApp Chat - Tshego/_chat.txt'
+        const chatPath = '/Users/tadi/Downloads/_chat.txt'
 
         server.middlewares.use((req, res, next) => {
           if (!req.url?.startsWith('/chat.json')) return next()
@@ -61,7 +61,7 @@ export default defineConfig({
         })
       },
       buildStart() {
-        const chatPath = '/Users/tadi/Downloads/WhatsApp Chat - Tshego/_chat.txt'
+        const chatPath = '/Users/tadi/Downloads/_chat.txt'
         try {
           const raw = readFileSync(chatPath, 'utf8')
           const data = withInstagramSeed(parseWhatsAppChatExport(raw, { meName: 'Tadi', partnerName: 'Tshego' }))
